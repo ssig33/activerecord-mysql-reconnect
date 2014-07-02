@@ -1,19 +1,29 @@
-require 'mysql2'
+if RUBY_PLATFORM != 'java'
+  require 'mysql2'
+end
 require 'logger'
 require 'bigdecimal'
 
 require 'active_record'
 require 'active_record/connection_adapters/abstract_adapter'
 require 'active_record/connection_adapters/abstract_mysql_adapter'
-require 'active_record/connection_adapters/mysql2_adapter'
+if RUBY_PLATFORM != 'java'
+  require 'active_record/connection_adapters/mysql2_adapter'
+else
+  require 'active_record/connection_adapters/jdbc_adapter'
+end
 require 'active_record/connection_adapters/abstract/connection_pool'
 
 require 'activerecord/mysql/reconnect/version'
 require 'activerecord/mysql/reconnect/base_ext'
 # XXX:
 #require 'activerecord/mysql/reconnect/abstract_adapter_ext'
-require 'activerecord/mysql/reconnect/abstract_mysql_adapter_ext'
-require 'activerecord/mysql/reconnect/mysql2_adapter_ext'
+if RUBY_PLATFORM != 'java'
+  require 'activerecord/mysql/reconnect/abstract_mysql_adapter_ext'
+  require 'activerecord/mysql/reconnect/mysql2_adapter_ext'
+else
+  require 'activerecord/mysql/reconnect/jdbc_adapter_ext'
+end
 require 'activerecord/mysql/reconnect/connection_pool_ext'
 
 module Activerecord::Mysql::Reconnect
@@ -23,10 +33,17 @@ module Activerecord::Mysql::Reconnect
   WITHOUT_RETRY_KEY = 'activerecord-mysql-reconnect-without-retry'
   RETRYABLE_TRANSACTION_KEY = 'activerecord-mysql-reconnect-transaction-retry'
 
-  HANDLE_ERROR = [
-    ActiveRecord::StatementInvalid,
-    Mysql2::Error,
-  ]
+  if RUBY_PLATFORM != 'java'
+    HANDLE_ERROR = [
+      ActiveRecord::StatementInvalid,
+      Mysql2::Error,
+    ]
+  else
+    HANDLE_ERROR = [
+      ActiveRecord::StatementInvalid,
+      ActiveRecord::JDBCError,
+    ]
+  end
 
   HANDLE_R_ERROR_MESSAGES = [
     'Lost connection to MySQL server during query',
@@ -37,6 +54,7 @@ module Activerecord::Mysql::Reconnect
     'Server shutdown in progress',
     'closed MySQL connection',
     "Can't connect to MySQL server",
+    'Could not create connection to database server',
     'Query execution was interrupted',
     'Access denied for user',
     'The MySQL server is running with the --read-only option',
@@ -209,7 +227,7 @@ module Activerecord::Mysql::Reconnect
     def connection_info(conn)
       conn_info = {}
 
-      if conn.kind_of?(Mysql2::Client)
+      if RUBY_PLATFORM != 'java' && conn.kind_of?(Mysql2::Client)
         [:host, :database, :username].each {|k| conn_info[k] = conn.query_options[k] }
       elsif conn.kind_of?(Hash)
         conn_info = conn.dup

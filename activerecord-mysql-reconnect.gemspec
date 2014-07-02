@@ -21,7 +21,9 @@ Gem::Specification.new do |spec|
   # '~> 3.2.14' or '~> 4.0.2'
   spec.add_dependency 'activerecord'
   spec.add_dependency 'activesupport'
-  spec.add_dependency 'mysql2'
+  if RUBY_PLATFORM != 'java'
+    spec.add_dependency 'mysql2'
+  end
   spec.add_development_dependency 'bundler', '~> 1.3'
   spec.add_development_dependency 'rake'
   spec.add_development_dependency 'rspec', '>= 2.14.1'
