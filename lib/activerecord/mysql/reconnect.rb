@@ -54,11 +54,12 @@ module Activerecord::Mysql::Reconnect
     'Server shutdown in progress',
     'closed MySQL connection',
     "Can't connect to MySQL server",
-    "Can't connect to local MySQL server",
+    "Can't connect to local MySQL server", # When running in local sandbox, or using a socket file
     'Could not create connection to database server',
     'Query execution was interrupted',
     'Access denied for user',
     'The MySQL server is running with the --read-only option',
+    'Unknown MySQL server host' # For DNS blips
   ]
 
   HANDLE_ERROR_MESSAGES = HANDLE_R_ERROR_MESSAGES + HANDLE_RW_ERROR_MESSAGES
