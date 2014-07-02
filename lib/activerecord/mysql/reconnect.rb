@@ -54,6 +54,7 @@ module Activerecord::Mysql::Reconnect
     'Server shutdown in progress',
     'closed MySQL connection',
     "Can't connect to MySQL server",
+    "Can't connect to local MySQL server",
     'Could not create connection to database server',
     'Query execution was interrupted',
     'Access denied for user',
