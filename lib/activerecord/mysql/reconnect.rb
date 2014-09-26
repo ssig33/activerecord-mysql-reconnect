@@ -48,7 +48,7 @@ module Activerecord::Mysql::Reconnect
 
   HANDLE_ERROR_MESSAGES = HANDLE_R_ERROR_MESSAGES + HANDLE_RW_ERROR_MESSAGES
 
-  READ_SQL_REGEXP = /\A\s*(?:SELECT|SHOW|SET)\b/i
+  READ_SQL_REGEXP = /\A\s*(?:(?:SELECT|SHOW|SET)\b|BEGIN\s*\z)/im
 
   RETRY_MODES = [:r, :rw, :force]
   DEFAULT_RETRY_MODE = :r
